@@ -20,7 +20,7 @@ router.route('/').get(async (req, res) => {
         }
 
     })
-    // console.log(result);
+    console.log(result);
     res.json(result);
 })
 
@@ -65,7 +65,6 @@ const message = (email, name, value) => {
                         {
                             "email": `${email}`,
                             "name": `${name}`
-
                         }
                     ]
                 }
@@ -90,7 +89,7 @@ const message = (email, name, value) => {
     }
 }
 
-const sendEmail = async (encodedData, name, email) => {
+const sendEmail = async (encodedData, email, name) => {
     const emailData = message(email, name, encodedData);
     client.setApiKey(process.env.SENDGRID_API_KEY);
     client.send(emailData).then(() => console.log('Mail sent successfully')).catch(error => {
@@ -116,7 +115,7 @@ router.route('/:id').put(async (req, res) => {
         });
 
         let qrCodeUrl = `https://chart.googleapis.com/chart?cht=qr&chl=${credential.offerUrl}&chs=300x300&chld=L|1`
-        await sendEmail(qrCodeUrl, firstName, email);
+        await sendEmail(qrCodeUrl, email, firstName)
 
         await Certificate.findByIdAndUpdate(req.params.id, update, { new: true });
 
