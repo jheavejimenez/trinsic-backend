@@ -2,11 +2,26 @@ const router = require('express').Router();
 let Certificate = require('../models/certificate.model');
 const { credentialsClient } = require("../utils/trinsicConfigs");
 const client = require("@sendgrid/mail");
+const User = require("../models/user.model");
 
 /* get all certificates that is not approve */
 router.route('/').get(async (req, res) => {
     const certificates = await Certificate.find({ isApprove: false });
-    res.json(certificates);
+    const users = await User.find();
+    const result = certificates.map((certificate) => {
+        const user = users.find((user) => user._id.toString() === certificate.user.toString());
+        return {
+            _id: certificate._id,
+            firstName: certificate.firstName,
+            lastName: certificate.lastName,
+            email: user.email,
+            course: certificate.course,
+            isApprove: certificate.isApprove,
+        }
+
+    })
+    // console.log(result);
+    res.json(result);
 })
 
 /* connection trinsic */
