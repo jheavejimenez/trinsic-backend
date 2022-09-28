@@ -90,8 +90,8 @@ const message = (email, name, value) => {
     }
 }
 
-const sendEmail = async (encodedData, email) => {
-    const emailData = message(email, encodedData);
+const sendEmail = async (encodedData, name, email) => {
+    const emailData = message(email, name, encodedData);
     client.setApiKey(process.env.SENDGRID_API_KEY);
     client.send(emailData).then(() => console.log('Mail sent successfully')).catch(error => {
         console.error(error);
@@ -101,7 +101,7 @@ const sendEmail = async (encodedData, email) => {
 /* approve application and create offer certificate */
 router.route('/:id').put(async (req, res) => {
     try {
-        const { firstName, lastName, course, isApprove } = req.body;
+        const { firstName, lastName, course, email, isApprove } = req.body;
         const update = { firstName, lastName, course, isApprove };
         const data = {
             "firstname": firstName,
@@ -116,7 +116,7 @@ router.route('/:id').put(async (req, res) => {
         });
 
         let qrCodeUrl = `https://chart.googleapis.com/chart?cht=qr&chl=${credential.offerUrl}&chs=300x300&chld=L|1`
-        await sendEmail(qrCodeUrl,firstName, req.body.email);
+        await sendEmail(qrCodeUrl, firstName, email);
 
         await Certificate.findByIdAndUpdate(req.params.id, update, { new: true });
 
