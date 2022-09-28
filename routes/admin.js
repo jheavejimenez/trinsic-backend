@@ -1,6 +1,5 @@
 const router = require('express').Router();
 let Certificate = require('../models/certificate.model');
-const axios = require("axios");
 const client = require('@sendgrid/mail');
 
 
@@ -26,7 +25,7 @@ const message = (email, name, value) => {
             }
         ,
         "subject":
-           `Hi ${name}, here's your certificate`,
+            `Hi ${name}, here's your certificate`,
         "content":
             [
                 {
@@ -38,7 +37,7 @@ const message = (email, name, value) => {
 }
 
 router.route('/').get(async (req, res) => {
-    const certificates = await Certificate.find({isApprove: false});
+    const certificates = await Certificate.find({ isApprove: false });
     res.json(certificates);
 })
 
@@ -51,11 +50,11 @@ const sendEmail = async (encodedData, email, name) => {
 }
 router.route('/:id').put(async (req, res) => {
     try {
-        const {firstName, lastName, email, course, isApprove, unsignedCredentials} = req.body;
+        const { firstName, lastName, email, course, isApprove } = req.body;
         await sendEmail(email, firstName)
 
-        const update = {firstName, lastName, email, course};
-        const updatedCertificate = await Certificate.findByIdAndUpdate(req.params.id, update, {new: true});
+        const update = { firstName, lastName, email, course };
+        const updatedCertificate = await Certificate.findByIdAndUpdate(req.params.id, update, { new: true });
         res.json(updatedCertificate)
     } catch (err) {
         console.log(err);

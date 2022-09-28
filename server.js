@@ -24,11 +24,11 @@ connection.once('open', () => {
 
 const certificateRouter = require('./routes/certificate');
 const userRouter = require('./routes/users');
-const approverRouter = require('./routes/approver');
+const adminRouter = require('./routes/admin');
 
 app.use('/api/users', userRouter);
 app.use('/api/certificates', certificateRouter);
-app.use('/api/approver', approverRouter);
+app.use('/api/admin', adminRouter);
 
 
 app.listen(port, () => {
