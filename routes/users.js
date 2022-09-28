@@ -3,7 +3,7 @@ let User = require('../models/user.model');
 
 router.route('/').post(async (req, res) => {
     try {
-        const user = await User.findOne({username: req.body.username});
+        const user = await User.findOne({email: req.body.email});
         if (user) {
             res.json(user);
         } else {
@@ -14,11 +14,6 @@ router.route('/').post(async (req, res) => {
     } catch(err) {
         res.status(400).json('error')
     }
-});
-
-router.route('/get-user-did/:id').get(async (req, res) => {
-    const user = await User.findById(req.params.id);
-    res.json(user.did)
 });
 
 module.exports = router;

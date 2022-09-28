@@ -25,6 +25,7 @@ router.route('/confirm-signup/:id').put(async (req, res) => {
 })
 
 router.route('/login/otp').post(async (req, res) => {
+
 });
 
 
