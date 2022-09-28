@@ -24,4 +24,8 @@ const walletClient = new WalletServiceClient(
     { noRetryPolicy: true }
 );
 
-export { providerClient, walletClient, credentialsClient };
+module.exports = {
+    credentialsClient,
+    providerClient,
+    walletClient
+}
