@@ -1,6 +1,7 @@
 const router = require('express').Router();
 let Certificate = require('../models/certificate.model');
 const { credentialsClient } = require("../utils/trinsicConfigs");
+const client = require("@sendgrid/mail");
 
 /* get all certificates that is not approve */
 router.route('/').get(async (req, res) => {
@@ -39,14 +40,72 @@ router.route('/schema').get(async (req, res) => {
     }
 })
 
+/* email */
+const message = (email, name, value) => {
+    return {
+        "personalizations":
+            [
+                {
+                    "to": [
+                        {
+                            "email": `${email}`,
+                            "name": `${name}`
+
+                        }
+                    ]
+                }
+            ],
+        "from":
+            {
+                "email":
+                    "emman@xperto.ph",
+                "name":
+                    "XPERTO"
+            }
+        ,
+        "subject":
+            `Hi ${name} Here is your credential`,
+        "content":
+            [
+                {
+                    "type": "text/html",
+                    "value": `<img alt="QR Code" src="${value}"/>`
+                }
+            ]
+    }
+}
+
+const sendEmail = async (encodedData, email) => {
+    const emailData = message(email, encodedData);
+    client.setApiKey(process.env.SENDGRID_API_KEY);
+    client.send(emailData).then(() => console.log('Mail sent successfully')).catch(error => {
+        console.error(error);
+    });
+}
+
 /* approve application and create offer certificate */
 router.route('/:id').put(async (req, res) => {
     try {
         const { firstName, lastName, course, isApprove } = req.body;
         const update = { firstName, lastName, course, isApprove };
+        const data = {
+            "firstname": firstName,
+            "lastname": lastName,
+            course,
+        }
+        let credential = await credentialsClient.createCredential({
+            definitionId: "BmwFyhx5wWNUZ33SZc41yk:3:CL:88841:Default", // must be dynamic not hard coded
+            connectionId: null,
+            automaticIssuance: true,
+            credentialValues: data,
+        });
 
-        const updatedCertificate = await Certificate.findByIdAndUpdate(req.params.id, update, { new: true });
-        res.json(updatedCertificate)
+        let qrCodeUrl = `https://chart.googleapis.com/chart?cht=qr&chl=${credential.offerUrl}&chs=300x300&chld=L|1`
+        await sendEmail(qrCodeUrl,firstName, req.body.email);
+
+        await Certificate.findByIdAndUpdate(req.params.id, update, { new: true });
+
+        res.json(credential)
     } catch (err) {
         console.log(err);
         res.status(500).json(`error ${err}`)
