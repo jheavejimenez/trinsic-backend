@@ -39,7 +39,7 @@ router.route('/schema').get(async (req, res) => {
     }
 })
 
-/* approve application */
+/* approve application and create offer certificate */
 router.route('/:id').put(async (req, res) => {
     try {
         const { firstName, lastName, course, isApprove } = req.body;
